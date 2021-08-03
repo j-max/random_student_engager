@@ -59,14 +59,58 @@ class CohortCaller:
         # divided by 2 rounded down.
         # If there is an odd number of students, the odd student will
         # be added to the last group
-        number_of_pairs = len(self.student_list)//2
 
-        activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs)
+        # if the class has an odd number of students
+        if len(self.student_list)%2:
+            number_of_pairs = len(self.student_list)//2
 
-        for pair, group in zip(activity_pairs, range(1,len(activity_pairs)+1)):
-            print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
-            self.mutable_pairs.remove(pair)
+            activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
+                                            replace=False)
 
 
-coder_caller = CohortCaller(avocoder_toasters)
-coder_caller.generate_pairs()
+
+            # Add statement if selected list != len of students, then regenerate pairs
+            # for classes with an odd number of students
+            for pair, group in zip(activity_pairs, range(1,len(activity_pairs)+1)):
+                print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
+                self.mutable_pairs.remove(pair)
+
+            # find the student that was not chosen for a pair
+            selected_students = [student for pair in activity_pairs
+                                for student in pair.split(' ')]
+            student_not_selected = [student for student in self.student_list
+                                    if student not in selected_students]
+            print(selected_students)
+            print(student_not_selected)
+
+        # if the class has an even number of students
+        else:
+
+            number_of_pairs = len(self.student_list)//2
+
+            activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
+                                            replace=False)
+
+            # Determine which students were randomly selected
+            selected_students = set([student for pair in activity_pairs
+                                for student in pair.split(' ')])
+
+            # if not all students were selected, recreate the pairs
+            while len(selected_students) != len(self.student_list):
+                activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
+                                            replace=False)
+                selected_students = set([student for pair in activity_pairs
+                                for student in pair.split(' ')])
+
+            if not len(self.student_list)%2:
+                for pair, group in zip(activity_pairs, range(1,len(activity_pairs)+1)):
+                    print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
+                    self.mutable_pairs.remove(pair)
+
+
+# coder_caller = CohortCaller(avocoder_toasters)
+# coder_caller.generate_pairs()
+avocoder_even = avocoder_toasters.copy()
+avocoder_even.pop()
+coder_even_caller = CohortCaller(avocoder_even)
+coder_even_caller.generate_pairs()
