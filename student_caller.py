@@ -55,10 +55,10 @@ class CohortCaller:
             self.all_pairs = [pair[0] +' '+ pair[1] for pair in pairs]
             self.mutable_pairs = self.all_pairs.copy()
 
-        # The number of pairs should be the total number of students
-        # divided by 2 rounded down.
-        # If there is an odd number of students, the odd student will
-        # be added to the last group
+        '''The number of pairs should be the total number of students
+         divided by 2 rounded down.
+         If there is an odd number of students, the odd student will
+         be added to the last group'''
 
         # if the class has an odd number of students
         if len(self.student_list)%2:
@@ -67,21 +67,32 @@ class CohortCaller:
             activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
                                             replace=False)
 
+            selected_students = set([student for pair in activity_pairs
+                                for student in pair.split(' ')])
+
+            # if not all students were selected, recreate the pairs
+            # subtract 1 from len because of odd number of students 
+            while len(selected_students) != len(self.student_list)-1:
+                activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
+                                            replace=False)
+                selected_students = set([student for pair in activity_pairs
+                                for student in pair.split(' ')])
 
 
             # Add statement if selected list != len of students, then regenerate pairs
             # for classes with an odd number of students
             for pair, group in zip(activity_pairs, range(1,len(activity_pairs)+1)):
                 print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
+
                 self.mutable_pairs.remove(pair)
 
-            # find the student that was not chosen for a pair
-            selected_students = [student for pair in activity_pairs
-                                for student in pair.split(' ')]
+            # with odd number of students, one student won't be selected
+            # print out and add to the last group
             student_not_selected = [student for student in self.student_list
                                     if student not in selected_students]
-            print(selected_students)
-            print(student_not_selected)
+
+            print('Group ' + str(group) + ': ' + student_not_selected[0])
+
 
         # if the class has an even number of students
         else:
@@ -108,9 +119,3 @@ class CohortCaller:
                     self.mutable_pairs.remove(pair)
 
 
-# coder_caller = CohortCaller(avocoder_toasters)
-# coder_caller.generate_pairs()
-avocoder_even = avocoder_toasters.copy()
-avocoder_even.pop()
-coder_even_caller = CohortCaller(avocoder_even)
-coder_even_caller.generate_pairs()
