@@ -8,7 +8,7 @@ class CohortCaller:
 
         self.student_list = student_list
         self.mutable_student_list = self.student_list.copy()
-        self.all_pairs = []
+        self.all_pairs = list(permutations(self.student_list, 2))
         self.mutable_pairs = None
 
     def call_n_students(self, number_of_students=1):
@@ -18,7 +18,7 @@ class CohortCaller:
         from the class list. 
 
         :param number_of_students: The number of students to choose in each call
-        :returns: 
+        :returns:
 
         """
 
@@ -48,17 +48,22 @@ class CohortCaller:
         from the mutable pairs list
         '''
 
-        pairs = list(permutations(self.student_list, 2))
         if self.mutable_pairs == None:
             # np.random.choice doesn't work when choosing tuples from a list
             # so pair tupples are converted to strings
-            self.all_pairs = [pair[0] +' '+ pair[1] for pair in pairs]
+            self.all_pairs = [pair[0] +' '+ pair[1] for pair in self.all_pairs]
             self.mutable_pairs = self.all_pairs.copy()
 
         '''The number of pairs should be the total number of students
          divided by 2 rounded down.
          If there is an odd number of students, the odd student will
          be added to the last group'''
+
+        # Choose a random pair from the available pairs
+        
+        # Remove all pairs with either student from the remaining pairs
+
+
 
         # if the class has an odd number of students
         if len(self.student_list)%2:
@@ -119,3 +124,5 @@ class CohortCaller:
                     self.mutable_pairs.remove(pair)
 
 
+test_cohort = CohortCaller(avocoder_toasters)
+test_cohort.generate_pairs()
