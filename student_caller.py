@@ -44,8 +44,10 @@ class CohortCaller:
         Pairs of students are generated from the student list using itertools
         combinations.
 
-        After each pair activities, the used pairs are removed
-        from the mutable pairs list
+        After each pair activity, the used pairs are removed
+        from the mutable pairs list.
+
+        That way every pair activity is ensured to have a different pairing.
         '''
 
         if self.mutable_pairs == None:
@@ -60,64 +62,38 @@ class CohortCaller:
          be added to the last group'''
 
         # if the class has an odd number of students
+        number_of_pairs = len(self.student_list)//2
+        # Choose a random pair from the available pairs
+
+        activity_pairs = []
+        pair_choices_remaining = self.mutable_pairs.copy()
+
+        while len(activity_pairs) < number_of_pairs:
+            pair_choice = np.random.choice(pair_choices_remaining)
+            activity_pairs.append(pair_choice)
+
+            # make a copy of mutable pairs. This is a temporary list of pairs to choose from.
+            pairs_to_remove = pair_in_list(pair_choice, pair_choices_remaining)
+            pair_choices_remaining = [pair for pair in pair_choices_remaining
+                                        if pair not in pairs_to_remove]
+
+        for pair,group in zip(activity_pairs, list(range(1,number_of_pairs+1))):
+            print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
+
         if len(self.student_list)%2:
-            number_of_pairs = len(self.student_list)//2
-            # Choose a random pair from the available pairs
-
-            activity_pairs = []
-            pair_choices_remaining = self.mutable_pairs.copy()
-
-            while len(activity_pairs) < number_of_pairs:
-                pair_choice = np.random.choice(pair_choices_remaining)
-                activity_pairs.append(pair_choice)
-
-                # make a copy of mutable pairs. This is a temporary list of pairs to choose from.
-                pairs_to_remove = pair_in_list(pair_choice, pair_choices_remaining)
-                pair_choices_remaining = [pair for pair in pair_choices_remaining
-                                          if pair not in pairs_to_remove]
-
-
-            print(activity_pairs)
-
-            for pair,group in zip(activity_pairs, list(range(1,number_of_pairs+1))):
-                print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
 
             selected_students = []
 
             for pair in activity_pairs:
                 selected_students.extend(pair.split(' '))
 
+
             student_not_selected = [student for student in self.student_list
                                     if student not in selected_students]
 
             print('Group ' + str(group) + ': ' + student_not_selected[0])
 
-
-
-
-        # if the class has an even number of students
-        else:
-
-            number_of_pairs = len(self.student_list)//2
-
-            activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
-                                            replace=False)
-
-            # Determine which students were randomly selected
-            selected_students = set([student for pair in activity_pairs
-                                for student in pair.split(' ')])
-
-            # if not all students were selected, recreate the pairs
-            while len(selected_students) != len(self.student_list):
-                activity_pairs = np.random.choice(self.mutable_pairs, number_of_pairs,
-                                            replace=False)
-                selected_students = set([student for pair in activity_pairs
-                                for student in pair.split(' ')])
-
-            if not len(self.student_list)%2:
-                for pair, group in zip(activity_pairs, range(1,len(activity_pairs)+1)):
-                    print('Group ' + str(group) + ': Driver --> ' + pair + ' <--Navigator')
-                    self.mutable_pairs.remove(pair)
+        self.mutable_pairs = [pair for pair in self.mutable_pairs if pair not in activity_pairs]
 
 def pair_in_list(chosen_pair, possible_pairs):
 
@@ -149,7 +125,11 @@ def pair_in_list(chosen_pair, possible_pairs):
     return pairs_to_remove
 
 # Test pair_in_list
-test_cohort = CohortCaller(avocoder_toasters)
-test_cohort.generate_pairs()
-remove_pair_test = pair_in_list('Raylin Ronak', test_cohort.mutable_pairs)
+#odd_test_cohort = CohortCaller(avocoder_toasters)
+#odd_test_cohort.generate_pairs()
+#remove_pair_test = pair_in_list('Raylin Ronak', test_cohort.mutable_pairs)
+#
+# avocoder_toasters.pop()
+# even_test_cohort = CohortCaller(avocoder_toasters)
+# even_test_cohort.generate_pairs()
 
